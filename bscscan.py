@@ -52,4 +52,6 @@ def get_transactions(address: str) -> pd.DataFrame:
             frames.append(df)
     if not frames:
         return pd.DataFrame()
-    return pd.concat(frames, ignore_index=True, sort=False)
+    return pd.concat(frames, ignore_index=True, sort=False).drop_duplicates(
+        subset="hash"
+    )
