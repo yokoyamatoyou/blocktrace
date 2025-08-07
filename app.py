@@ -42,6 +42,14 @@ if fetch and address:
         # convert timestamps
         if "timeStamp" in tx_df.columns:
             tx_df["timeStamp"] = pd.to_datetime(tx_df["timeStamp"], unit="s")
+            if len(date_range) == 2:
+                start, end = date_range
+                start_dt = pd.to_datetime(start)
+                end_dt = pd.to_datetime(end) + pd.Timedelta(days=1)
+                tx_df = tx_df[
+                    (tx_df["timeStamp"] >= start_dt)
+                    & (tx_df["timeStamp"] < end_dt)
+                ]
         db.insert_raw(con, tx_df)
         edges = graph.build_edges(tx_df, address)
         db.insert_edges(con, edges)
