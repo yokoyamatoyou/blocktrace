@@ -1,0 +1,10 @@
+streamlit
+duckdb
+pandas
+numpy
+requests
+plotly
+networkx
+pyvis
+python-levenshtein
+python-dotenv
