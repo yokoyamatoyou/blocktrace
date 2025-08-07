@@ -8,3 +8,4 @@ networkx
 pyvis
 python-levenshtein
 python-dotenv
+pytest
