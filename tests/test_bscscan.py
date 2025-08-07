@@ -90,3 +90,22 @@ def test_fetch_all_value_error(monkeypatch):
 
     df = bscscan.fetch_all("txlist", "0xabc")
     assert df.empty
+
+
+def test_get_transactions_deduplicates(monkeypatch):
+    """get_transactions should drop duplicate hashes across actions."""
+
+    def fake_fetch_all(action, address):
+        if action == "txlist":
+            return bscscan.pd.DataFrame([{"hash": "h1"}])
+        if action == "txlistinternal":
+            return bscscan.pd.DataFrame([{"hash": "h1"}])
+        if action == "tokentx":
+            return bscscan.pd.DataFrame([{"hash": "h2"}])
+        raise AssertionError(f"Unexpected action {action}")
+
+    monkeypatch.setattr(bscscan, "fetch_all", fake_fetch_all)
+
+    df = bscscan.get_transactions("0xabc")
+    assert len(df) == 2
+    assert df["hash"].is_unique
