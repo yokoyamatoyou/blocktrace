@@ -51,7 +51,9 @@ if fetch and address:
                     & (tx_df["timeStamp"] < end_dt)
                 ]
         db.insert_raw(con, tx_df)
-        edges = graph.build_edges(tx_df, address)
+        edges = graph.build_edges(
+            tx_df, address, fetcher=bscscan.get_transactions, max_hop=2
+        )
         db.insert_edges(con, edges)
     else:
         st.warning("No transactions found")
