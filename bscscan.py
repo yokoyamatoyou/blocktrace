@@ -27,7 +27,8 @@ def fetch_all(action: Action, address: str) -> pd.DataFrame:
         url = build_url(action, address, start)
         resp = requests.get(url, timeout=10).json()
         data = resp.get("result", [])
-        if not data:
+        # BscScan may return an error string in "result" when status != 1.
+        if not isinstance(data, list) or not data:
             break
         items.extend(data)
         start = int(data[-1]["blockNumber"]) + 1
