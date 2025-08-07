@@ -25,8 +25,13 @@ def fetch_all(action: Action, address: str) -> pd.DataFrame:
     start, items = 0, []
     while True:
         url = build_url(action, address, start)
-        resp = requests.get(url, timeout=10).json()
-        data = resp.get("result", [])
+        try:
+            resp = requests.get(url, timeout=10)
+            data = resp.json().get("result", [])
+        except (requests.exceptions.RequestException, ValueError) as exc:  # pragma: no cover - logging
+            print(f"Error fetching {url}: {exc}")
+            return pd.DataFrame()
+
         # BscScan may return an error string in "result" when status != 1.
         if not isinstance(data, list) or not data:
             break
