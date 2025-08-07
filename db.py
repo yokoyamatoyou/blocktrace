@@ -46,29 +46,29 @@ def init_db(con: duckdb.DuckDBPyConnection) -> None:
 def insert_raw(con: duckdb.DuckDBPyConnection, df: pd.DataFrame) -> None:
     if df.empty:
         return
-    con.execute(
-        "INSERT OR IGNORE INTO tx_raw SELECT * FROM df",
-        {"df": df[
-            [
-                "hash",
-                "blockNumber",
-                "timeStamp",
-                "from",
-                "to",
-                "value",
-                "tokenSymbol",
-                "gas",
-                "input",
-            ]
-        ].rename(
-            columns={
-                "blockNumber": "block",
-                "timeStamp": "time",
-                "value": "value_native",
-                "tokenSymbol": "token_symbol",
-            }
-        )},
+    df = df.rename(
+        columns={
+            "blockNumber": "block",
+            "timeStamp": "time",
+            "value": "value_native",
+            "tokenSymbol": "token_symbol",
+        }
+    ).reindex(
+        columns=[
+            "hash",
+            "block",
+            "time",
+            "from",
+            "to",
+            "value_native",
+            "token_symbol",
+            "gas",
+            "input",
+        ]
     )
+    df = df.astype(object).where(pd.notnull(df), None)
+    con.register("df", df)
+    con.execute("INSERT OR IGNORE INTO tx_raw SELECT * FROM df")
 
 
 def insert_edges(con: duckdb.DuckDBPyConnection, df: pd.DataFrame) -> None:
